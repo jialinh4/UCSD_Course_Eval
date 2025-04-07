@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 # scrape_ucsd_courses.py
 """
-此脚本用于自动抓取UCSD课程目录中研究生课程（200-299）的数据，
-并将整合后的数据存为CSV文件以供后续数据分析和处理。
+This script automatically scrapes UCSD course catalog data for graduate courses (200-299),
+and saves the consolidated data into a CSV file for further analysis and processing.
 """
 
 import requests
@@ -10,7 +10,7 @@ from bs4 import BeautifulSoup
 import csv
 import re
 
-# 目标URL（请根据实际情况调整）
+# Target URL (please adjust based on the actual URL)
 url = "https://catalog.ucsd.edu/front/courses.html"
 
 def fetch_course_data(url):
@@ -20,16 +20,17 @@ def fetch_course_data(url):
     
     courses = []
     
-    # 假设每门课程信息都位于<div class="course">中，
-    # 课程编号、标题、描述分别在<span class="course-number">、<span class="course-title">、<div class="course-description">
+    # Assuming each course's information is contained in a <div class="course"> element,
+    # with the course number, title, and description in <span class="course-number">,
+    # <span class="course-title">, and <div class="course-description"> respectively.
     for course_div in soup.find_all("div", class_="course"):
         course_number_tag = course_div.find("span", class_="course-number")
-        course_title_tag  = course_div.find("span", class_="course-title")
-        course_desc_tag   = course_div.find("div", class_="course-description")
+        course_title_tag = course_div.find("span", class_="course-title")
+        course_desc_tag = course_div.find("div", class_="course-description")
         
         if course_number_tag and course_title_tag:
             num_text = course_number_tag.get_text(strip=True)
-            # 筛选200-299的研究生课程
+            # Filter for graduate courses with numbers in the 200-299 range
             if re.match(r"^2\d\d", num_text):
                 courses.append({
                     "number": num_text,
@@ -45,11 +46,11 @@ def save_to_csv(courses, filename="ucsd_graduate_courses.csv"):
         writer.writeheader()
         for course in courses:
             writer.writerow(course)
-    print(f"数据已保存至 {filename}")
+    print(f"Data saved to {filename}")
 
 if __name__ == "__main__":
     courses = fetch_course_data(url)
     if courses:
         save_to_csv(courses)
     else:
-        print("未抓取到任何课程数据，请检查目标页面或选择器设置。")
+        print("No course data was retrieved. Please check the target page or selector settings.")
